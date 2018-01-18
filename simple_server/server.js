@@ -1,9 +1,16 @@
-let http = require('https');
-
+const http = require('https');
+const express = require('express');
 let url = "https://www.reddit.com"
 let num = 53;
 let posts = [];
 let comments = {};
+let app = express();
+
+app.get('/', (req, res) => res.send('Hello World'));
+
+app.listen(process.env.PORT || 3000, function(){
+  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+});
 
 topPosts(url, num, posts);
 
@@ -22,13 +29,10 @@ function topPosts(url, num, posts) {
         posts.push({ post: post, comments: true });
       });
 
-      console.log(posts.length);
-
       posts.forEach( post => {
         // console.log(post);
         let commentsJson = '';
         let commentUrl = url + post.post.data.permalink + '.json'
-        console.log(commentUrl);
         http.get(commentUrl, (res) => {
           res.on('data', function(chunk) {
             commentsJson += chunk;
@@ -38,7 +42,6 @@ function topPosts(url, num, posts) {
             // console.log(commentsObj);
             // console.log(posts);
             post.comments = commentsObj;
-            console.log(post);
           });
         });
       });
