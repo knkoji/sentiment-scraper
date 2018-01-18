@@ -1,0 +1,26 @@
+{
+  "name": "sentiment_scraper",
+  "version": "1.0.0",
+  "description": "scraping popular sites for sentiment analysis",
+  "main": "server.js",
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./simple_server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knkoji/sentiment-scraper.git"
+  },
+  "author": "Kingsley Oji <kingsley.nk.oji@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/knkoji/sentiment-scraper/issues"
+  },
+  "homepage": "https://github.com/knkoji/sentiment-scraper#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.2",
+    "request": "^2.83.0"
+  },
+}
