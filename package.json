@@ -1,12 +1,14 @@
 {
   "name": "sentiment_scraper",
   "version": "1.0.0",
+  "engines": {
+    "node": "6.11.1"
+  },
   "description": "scraping popular sites for sentiment analysis",
   "main": "server.js",
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./simple_server/server.js"
+    "start": "node ./simple_server/server.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.2",
+    "jquery": "^3.2.1",
     "request": "^2.83.0"
-  },
+  }
 }
