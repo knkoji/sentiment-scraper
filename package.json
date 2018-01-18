@@ -8,7 +8,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./simple_server/index.html"
+    "start": "node ./simple_server/server.html"
   },
   "repository": {
     "type": "git",
