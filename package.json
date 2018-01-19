@@ -2,7 +2,7 @@
   "name": "sentiment_scraper",
   "version": "1.0.0",
   "engines": {
-    "node": "6.11.1"
+    "node": "6.10.1"
   },
   "description": "scraping popular sites for sentiment analysis",
   "main": "server.js",
