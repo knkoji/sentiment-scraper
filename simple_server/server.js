@@ -1,12 +1,19 @@
 const http = require('https');
 const express = require('express');
+const path = require('path');
+
 let url = "https://www.reddit.com"
 let num = 53;
 let posts = [];
 let comments = {};
 let app = express();
+const path = require('path');
 
-app.get('/', (req, res) => res.send('Hello World'));
+// Later on. app could also be router, etc., if you ever get that far
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.listen(process.env.PORT || 3000, function(){
   console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
