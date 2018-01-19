@@ -7,12 +7,13 @@ let num = 53;
 let posts = [];
 let comments = {};
 let app = express();
-const path = require('path');
+
 
 // Later on. app could also be router, etc., if you ever get that far
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+    // res.send('Hello World');
 });
 
 app.listen(process.env.PORT || 3000, function(){
