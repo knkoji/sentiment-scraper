@@ -7,20 +7,26 @@ const app = express();
 let main = 'https://www.reddit.com';
 let subreddit = 'CryptoCurrency';
 let resultsObj = createPostsObj(main, subreddit);
+var bodyParser = require('body-parser');
+
 console.log(resultsObj);
 //----------------------------------------------------------------------
-
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../bin')));
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../bin', 'index.html'));
 });
-app.get('/posts', (req, res) => {
+app.post('/posts', (req, res) => {
+  console.log(req.body);
   resultsObj.getPosts((posts) => {
     res.send(posts);
   });
+
 });
 app.get('/comments', (req, res) => {
-  resultsObj.getComments((comments) => {
+  resultsObj.getComments((comments) => {p;kil
     res.send(comments);
   });
 });
@@ -36,7 +42,7 @@ function createPostsObj(domain, subreddit) {
     this.url = url;
     this.posts = [];
     this.comments = [];
-    this.getPosts = () => {;
+    this.getPosts = (cb) => {;
       let postsJson = '';
       https.get(this.url, (res) => {
         res.on('data', function(chunk) {
@@ -48,7 +54,7 @@ function createPostsObj(domain, subreddit) {
         });
       });
     }
-    this.getComments = () => {
+    this.getComments = (cb) => {
       let commentsJson = '';
       posts.forEach( post => {
         let commentUrl = url + post.post.data.permalink + '.json'
