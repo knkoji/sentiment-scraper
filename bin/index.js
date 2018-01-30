@@ -1,5 +1,5 @@
 
-var data = { crutch: "block" };
+var data = { subreddit: "CryptoCurrency" };
 
 $.ajax({
   url: "http://localhost:3000/posts",
@@ -7,6 +7,6 @@ $.ajax({
   data: data,
   success: function(posts) {
     console.log(posts);
-    $('#posts').append(posts);
+    $('#posts').append(JSON.stringify(posts));
   }
 });

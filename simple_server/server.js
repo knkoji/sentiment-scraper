@@ -5,8 +5,8 @@ const request = require('request');
 const app = express();
 
 let main = 'https://www.reddit.com';
-let subreddit = 'CryptoCurrency';
-let resultsObj = createPostsObj(main, subreddit);
+// let subreddit = 'CryptoCurrency';
+let resultsObj = createPostsObj(main);
 var bodyParser = require('body-parser');
 
 console.log(resultsObj);
@@ -20,9 +20,10 @@ app.get('/', (req, res) => {
 });
 app.post('/posts', (req, res) => {
   console.log(req.body);
+  let subreddit = req.body.subreddit;
   resultsObj.getPosts((posts) => {
     res.send(posts);
-  });
+  }, subreddit);
 
 });
 app.get('/comments', (req, res) => {
@@ -36,15 +37,15 @@ app.listen(process.env.PORT || 3000, function(){
 });
 //----------------------------------------------------------------------
 
-function createPostsObj(domain, subreddit) {
-  let url = `${domain}/r/${subreddit}.json`;
+function createPostsObj(domain) {
+
   function PostsObj() {
-    this.url = url;
     this.posts = [];
     this.comments = [];
-    this.getPosts = (cb) => {;
+    this.getPosts = (cb, sub) => {;
       let postsJson = '';
-      https.get(this.url, (res) => {
+      let url = `${domain}/r/${sub}.json`;
+      https.get(url, (res) => {
         res.on('data', function(chunk) {
           postsJson += chunk;
         });
