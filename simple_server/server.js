@@ -1,58 +1,75 @@
-const http = require('https');
+const https = require('https');
 const express = require('express');
 const path = require('path');
+const request = require('request');
+const app = express();
 
-let url = "https://www.reddit.com"
-let num = 53;
-let posts = [];
-let comments = {};
-let app = express();
+let main = 'https://www.reddit.com';
+// let subreddit = 'CryptoCurrency';
+let resultsObj = createPostsObj(main);
+var bodyParser = require('body-parser');
 
-
-// Later on. app could also be router, etc., if you ever get that far
+console.log(resultsObj);
+//----------------------------------------------------------------------
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../bin')));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-    // res.send('Hello World');
+    res.sendFile(path.join(__dirname, '../bin', 'index.html'));
 });
+app.post('/posts', (req, res) => {
+  console.log(req.body);
+  let subreddit = req.body.subreddit;
+  resultsObj.getPosts((posts) => {
+    res.send(posts);
+  }, subreddit);
 
+});
+app.get('/comments', (req, res) => {
+  resultsObj.getComments((comments) => {p;kil
+    res.send(comments);
+  });
+});
 app.listen(process.env.PORT || 3000, function(){
   console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+  console.log(__dirname);
 });
+//----------------------------------------------------------------------
 
-topPosts(url, num, posts);
+function createPostsObj(domain) {
 
-
-function topPosts(url, num, posts) {
-  postsJson = '';
-  commentsJson = '';
-  http.get(url + '/r/CryptoCurrency/.json', (res) => {
-    res.on('data', function(chunk) {
-      postsJson += chunk;
-    });
-
-    res.on('end', function(){
-      let jsonObj = JSON.parse(postsJson);
-      jsonObj.data.children.forEach(function(post) {
-        posts.push({ post: post, comments: true });
+  function PostsObj() {
+    this.posts = [];
+    this.comments = [];
+    this.getPosts = (cb, sub) => {;
+      let postsJson = '';
+      let url = `${domain}/r/${sub}.json`;
+      https.get(url, (res) => {
+        res.on('data', function(chunk) {
+          postsJson += chunk;
+        });
+        res.on('end', function(){
+          this.posts = JSON.parse(postsJson);
+          cb(this.posts);
+        });
       });
-
+    }
+    this.getComments = (cb) => {
+      let commentsJson = '';
       posts.forEach( post => {
-        // console.log(post);
-        let commentsJson = '';
         let commentUrl = url + post.post.data.permalink + '.json'
-        http.get(commentUrl, (res) => {
+        https.get(commentUrl, (res) => {
           res.on('data', function(chunk) {
             commentsJson += chunk;
           });
           res.on('end', function() {
-            let commentsObj = JSON.parse(commentsJson);
-            // console.log(commentsObj);
-            // console.log(posts);
-            post.comments = commentsObj;
+            this.comments = JSON.parse(commentsJson);
+            cb(this.comments);
           });
         });
       });
-    });
-  });
+    }
+  }
+  return new PostsObj();
 }
