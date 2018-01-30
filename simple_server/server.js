@@ -5,7 +5,6 @@ const request = require('request');
 const app = express();
 
 let main = 'https://www.reddit.com';
-// let subreddit = 'CryptoCurrency';
 let resultsObj = createPostsObj(main);
 var bodyParser = require('body-parser');
 
