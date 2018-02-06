@@ -9,6 +9,9 @@ let resultsObj = createPostsObj(main);
 let bodyParser = require('body-parser');
 let ClientOAuth2 = require('client-oauth2');
 
+const reddit_pass = process.env.redditPass;
+const reddit_id = process.env.redditId;
+
 console.log(resultsObj);
 
 //----------------------------------------------------------------------
@@ -52,8 +55,8 @@ function createPostsObj(domain) {
       let tokenUrl = 'https://www.reddit.com/api/v1/access_token';
       const redditAuth = new ClientOAuth2({
         accessTokenUri: tokenUrl,
-        clientId: 'B97nDpL7FNF_Pg',
-        clientSecret: 'bCnBDBaPaJSiqZD_D6awmVi149Y',
+        clientId: reddit_id,
+        clientSecret: reddit_pass,
       });
 
       redditAuth.credentials.getToken()
@@ -67,8 +70,8 @@ function createPostsObj(domain) {
                             'Authorization': `Bearer ${token}`
                           },
                           form: {
-                                  'client_id': 'B97nDpL7FNF_Pg',
-                                  'client_secret': 'bCnBDBaPaJSiqZD_D6awmVi149Y'
+                                  'client_id': reddit_id,
+                                  'client_secret': reddit_pass
                           },
                           url: url
                         };
