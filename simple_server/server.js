@@ -4,11 +4,13 @@ const path = require('path');
 const request = require('request');
 const app = express();
 
-let main = 'https://www.reddit.com';
+let main = 'https://oauth.reddit.com';
 let resultsObj = createPostsObj(main);
-var bodyParser = require('body-parser');
+let bodyParser = require('body-parser');
+let ClientOAuth2 = require('client-oauth2');
 
 console.log(resultsObj);
+
 //----------------------------------------------------------------------
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -17,20 +19,23 @@ app.use(express.static(path.join(__dirname, '../bin')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../bin', 'index.html'));
 });
+
 app.post('/posts', (req, res) => {
-  console.log(req.body);
   let subreddit = req.body.subreddit;
   resultsObj.getPosts((posts) => {
     res.send(posts);
   }, subreddit);
-
 });
+
 app.get('/comments', (req, res) => {
-  resultsObj.getComments((comments) => {p;kil
+
+  resultsObj.getComments((comments) => {
     res.send(comments);
   });
 });
+
 app.listen(process.env.PORT || 3000, function(){
+
   console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
   console.log(__dirname);
 });
@@ -39,24 +44,46 @@ app.listen(process.env.PORT || 3000, function(){
 function createPostsObj(domain) {
 
   function PostsObj() {
+    this.token = '';
     this.posts = [];
     this.comments = [];
-    this.getPosts = (cb, sub) => {;
-      let postsJson = '';
-      let url = `${domain}/r/${sub}.json`;
-      https.get(url, (res) => {
-        res.on('data', function(chunk) {
-          postsJson += chunk;
-        });
-        res.on('end', function(){
-          this.posts = JSON.parse(postsJson);
-          cb(this.posts);
-        });
+    this.getPosts = (cb, sub) => {
+
+      let tokenUrl = 'https://www.reddit.com/api/v1/access_token';
+      const redditAuth = new ClientOAuth2({
+        accessTokenUri: tokenUrl,
+        clientId: 'B97nDpL7FNF_Pg',
+        clientSecret: 'bCnBDBaPaJSiqZD_D6awmVi149Y',
       });
+
+      redditAuth.credentials.getToken()
+        .then(function (user) {
+          let token = user.accessToken;
+          let postsJson = '';
+          let url = `${domain}/r/${sub}/new`;
+          let options = {
+                          headers: {
+                            'User-Agent': 'node:sensi:v.0.0.0 (by u/kokojesus)',
+                            'Authorization': `Bearer ${token}`
+                          },
+                          form: {
+                                  'client_id': 'B97nDpL7FNF_Pg',
+                                  'client_secret': 'bCnBDBaPaJSiqZD_D6awmVi149Y'
+                          },
+                          url: url
+                        };
+          console.log(user.data);
+          console.log(token);
+          console.log(url);
+          request.get(options, (error, res) => {
+            cb(res.body);
+          });
+        });
     }
+
     this.getComments = (cb) => {
       let commentsJson = '';
-      posts.forEach( post => {
+      this.posts.forEach( post => {
         let commentUrl = url + post.post.data.permalink + '.json'
         https.get(commentUrl, (res) => {
           res.on('data', function(chunk) {
@@ -69,6 +96,8 @@ function createPostsObj(domain) {
         });
       });
     }
+
   }
+
   return new PostsObj();
 }

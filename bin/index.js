@@ -1,13 +1,12 @@
 
-
 $("#getPosts").click(() => {
   let data = {};
-  let inputText = $('#subreddit').val();
+  let inputText = $('#subreddit-search').val();
   data.subreddit = inputText;
 
   console.log(inputText);
   $.ajax({
-    url: "http://localhost:3000/posts",
+    url: "/posts",
     method: "POST",
     data: data,
     success: displayPosts
