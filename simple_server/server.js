@@ -3,14 +3,18 @@ const express = require('express');
 const path = require('path');
 const request = require('request');
 const app = express();
+const environs = require('process_env.js');
 
 let main = 'https://oauth.reddit.com';
 let resultsObj = createPostsObj(main);
 let bodyParser = require('body-parser');
 let ClientOAuth2 = require('client-oauth2');
 
-const reddit_pass = process.env.redditPass;
-const reddit_id = process.env.redditId;
+let accessVars = environs();
+const redditPass = accessVars.reddit.pass;
+const redditId = accessVars.reddit.id;
+const nlpWatsonPass = accessVars.nlpWatson.pass;
+const nlpWatsonId = accessVars.nlpWatson.id;
 
 console.log(resultsObj);
 
