@@ -15,9 +15,10 @@ $("#getPosts").click(() => {
 
 function displayPosts(postsJSON) {
   if(postsJSON["message"]) {
+    console.log("error: \n");
     console.log(JSON.stringify(postsJSON));
-    console.log("safkks");
   } else {
     $('#posts').append(JSON.stringify(postsJSON));
+    console.log(postsJSON);
   }
 }
