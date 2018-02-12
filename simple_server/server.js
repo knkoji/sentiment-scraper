@@ -3,25 +3,30 @@ const express = require('express');
 const path = require('path');
 const request = require('request');
 const fs = require('fs');
-const environs = require('./process_env.js');
+const bodyParser = require('body-parser');
+const ClientOAuth2 = require('client-oauth2');
+const loadConfig = require('./process_env.js');
+let watsonNLUV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
+
 const app = express();
+const config = loadConfig();
+const redditPass = config.reddit.pass;
+const redditId = config.reddit.id;
+const nluWatsonPass = config.nluWatson.pass;
+const nluWatsonId = config.nluWatson.id;
 
+let nlu = new watsonNLUV1({
+  username: nluWatsonId,
+  password: nluWatsonPass,
+  version_date: watsonNLUV1.VERSION_DATE_2017_02_27
+});
 let main = 'https://oauth.reddit.com';
-let resultsObj = createPostsObj(main);
-let bodyParser = require('body-parser');
-let ClientOAuth2 = require('client-oauth2');
-let NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
-
-let accessVars = environs();
-const redditPass = accessVars.reddit.pass;
-const redditId = accessVars.reddit.id;
-const nluWatsonPass = accessVars.nluWatson.pass;
-const nluWatsonId = accessVars.nluWatson.id;
-
 let url = 'https://www.cbinsights.com/research/startup-failure-reasons-top/?utm_content=66767994&utm_medium=social&utm_source=twitter'
+let resultsObj = createPostsObj(main)
 console.log(resultsObj);
 
 //----------------------------------------------------------------------
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../bin')));
@@ -32,13 +37,9 @@ app.get('/', (req, res) => {
 
 app.post('/posts', (req, res) => {
   let subreddit = req.body.subreddit;
-  resultsObj.getPosts((posts) => {
+  let responsePackage = {};
 
-    let nlu = new NaturalLanguageUnderstandingV1({
-      username: nluWatsonId,
-      password: nluWatsonPass,
-      version_date: NaturalLanguageUnderstandingV1.VERSION_DATE_2017_02_27
-    });
+  resultsObj.getPosts((posts) => {
 
     nlu.analyze(
       {
@@ -136,11 +137,20 @@ function createPostsObj(domain) {
   return new PostsObj();
 }
 
-// function createNLPObj(content) {
-//
-//   function NLPObj() {
-//
-//   }
-//
-//   return new NLPObj;
-// }
+function createResponsePack() {
+  //what's being organized here??
+  //what does the response need to do in this situation?
+  //data needs to be sent to the front end but processed first
+  //need to send post data with associated comments
+  //if there are no comments leave empty
+  //if there is a url involved get url
+  //also need watson response data
+  //would it make sense to tier the response
+  //figure out what needs to be extracted from watson info (everything?)
+  //send in another object??? try to make faster...
+  function ResponsePackage() {
+    this.postsData = {};
+    this.watsonData = {};
+  }
+  return new ResponsePackage();
+}
