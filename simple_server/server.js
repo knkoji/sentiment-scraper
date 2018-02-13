@@ -22,7 +22,8 @@ let nlu = new watsonNLUV1({
 });
 let main = 'https://oauth.reddit.com';
 let url = 'https://www.cbinsights.com/research/startup-failure-reasons-top/?utm_content=66767994&utm_medium=social&utm_source=twitter'
-let resultsObj = createPostsObj(main)
+let resultsObj = createPostsObj(main);
+let resPack = createResponsePack();
 console.log(resultsObj);
 
 //----------------------------------------------------------------------
@@ -53,7 +54,9 @@ app.post('/posts', (req, res) => {
         if(error) {
           console.log(`error: ${error}`);
         } else {
-          res.send(JSON.stringify(response, null, 2));
+          resPack.postsData = posts;
+          resPack.watsonData = response;
+          res.send(resPack);
         }
       }
     );
@@ -138,6 +141,11 @@ function createPostsObj(domain) {
 }
 
 function createResponsePack() {
+  function ResponsePackage() {
+    this.postsData = {};
+    this.watsonData = {};
+  }
+  return new ResponsePackage();
   //what's being organized here??
   //what does the response need to do in this situation?
   //data needs to be sent to the front end but processed first
@@ -148,9 +156,4 @@ function createResponsePack() {
   //would it make sense to tier the response
   //figure out what needs to be extracted from watson info (everything?)
   //send in another object??? try to make faster...
-  function ResponsePackage() {
-    this.postsData = {};
-    this.watsonData = {};
-  }
-  return new ResponsePackage();
 }

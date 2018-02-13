@@ -9,16 +9,20 @@ $("#getPosts").click(() => {
     url: "/posts",
     method: "POST",
     data: data,
-    success: displayPosts
+    success: takeData
   });
 });
 
-function displayPosts(postsJSON) {
-  if(postsJSON["message"]) {
+function takeData(dataPack) {
+  if(dataPack.postsData["message"]) {
     console.log("error: \n");
     console.log(JSON.stringify(postsJSON));
   } else {
-    $('#posts').append(JSON.stringify(postsJSON));
-    console.log(postsJSON);
+    // $('#posts').append(JSON.stringify(postsJSON));
+    let postsStrData = dataPack.postsData;
+    let watsonStrData = dataPack.watsonData;
+
+    console.log("posts: \n", JSON.parse(dataPack.postsData));
+    console.log("watson: \n", dataPack.watsonData);
   }
 }
