@@ -13,16 +13,17 @@ $("#getPosts").click(() => {
   });
 });
 
-function takeData(dataPack) {
-  if(dataPack.postsData["message"]) {
-    console.log("error: \n");
-    console.log(JSON.stringify(postsJSON));
-  } else {
-    // $('#posts').append(JSON.stringify(postsJSON));
-    let postsStrData = dataPack.postsData;
-    let watsonStrData = dataPack.watsonData;
+function takeData(posts) {
+  // if(dataPack.postsData["message"]) {
+  //   console.log("error: \n");
+  //   console.log(JSON.stringify(postsJSON));
+  // } else {
+  //   // $('#posts').append(JSON.stringify(postsJSON));
+  //   let postsStrData = dataPack.postsData;
+  //   let watsonStrData = dataPack.watsonData;
+  //
+  //   console.log("posts: \n", JSON.parse(dataPack.postsData));
+  //   console.log("watson: \n", dataPack.watsonData);
+  console.log(posts);
 
-    console.log("posts: \n", JSON.parse(dataPack.postsData));
-    console.log("watson: \n", dataPack.watsonData);
-  }
 }

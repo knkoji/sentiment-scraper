@@ -4,6 +4,7 @@ const path = require('path');
 const request = require('request');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const async = require("async");
 const ClientOAuth2 = require('client-oauth2');
 const loadConfig = require('./process_env.js');
 let watsonNLUV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
@@ -23,8 +24,10 @@ let nlu = new watsonNLUV1({
 let main = 'https://oauth.reddit.com';
 let url = 'https://www.cbinsights.com/research/startup-failure-reasons-top/?utm_content=66767994&utm_medium=social&utm_source=twitter'
 let resultsObj = createPostsObj(main);
-let resPack = createResponsePack();
+// let resPack = createResponsePack();
+// let watsonRes = createWatsonResponse();
 console.log(resultsObj);
+// console.log(watsonRes);
 
 //----------------------------------------------------------------------
 
@@ -38,28 +41,53 @@ app.get('/', (req, res) => {
 
 app.post('/posts', (req, res) => {
   let subreddit = req.body.subreddit;
-  let responsePackage = {};
+  let resPack = [];
 
   resultsObj.getPosts((posts) => {
 
-    nlu.analyze(
-      {
-        url: url,
-        features: {
-          concepts: {},
-          keywords: {}
-        }
+    let postsObj = JSON.parse(posts);
+    console.log(postsObj.data.children);
+    let postsArray = postsObj.data.children;
+    async.map(postsArray,
+      (post, cb) => {
+        nlu.analyze(
+          {
+            url: url,
+            features: {
+              concepts: {},
+              keywords: {}
+            }
+          },
+          (error, response) => {
+            if(error) {
+              console.log(`error: ${error}`);
+            } else {
+              console.log(Object.keys(response));
+              cb(null, response);
+            }
+          });
       },
-      (error, response) => {
-        if(error) {
-          console.log(`error: ${error}`);
+      (err, results) => {
+        if(err) {
+          console.log(err);
         } else {
-          resPack.postsData = posts;
-          resPack.watsonData = response;
-          res.send(resPack);
+          res.send(results);
         }
       }
     );
+    // postsArray.forEach((post) => {
+    //   let postObj = {
+    //     post: post
+    //   }
+    //   watsonRes.
+    //   resPack.push(postObj);
+    // });
+    //
+    // resPack.postsData = posts;
+
+    //resPack.watsonData = response;
+    // res.send(resPack);
+
   }, subreddit);
 
 });
@@ -135,25 +163,8 @@ function createPostsObj(domain) {
       });
     }
 
+
   }
 
   return new PostsObj();
-}
-
-function createResponsePack() {
-  function ResponsePackage() {
-    this.postsData = {};
-    this.watsonData = {};
-  }
-  return new ResponsePackage();
-  //what's being organized here??
-  //what does the response need to do in this situation?
-  //data needs to be sent to the front end but processed first
-  //need to send post data with associated comments
-  //if there are no comments leave empty
-  //if there is a url involved get url
-  //also need watson response data
-  //would it make sense to tier the response
-  //figure out what needs to be extracted from watson info (everything?)
-  //send in another object??? try to make faster...
 }
