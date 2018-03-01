@@ -16,18 +16,14 @@ const redditId = config.reddit.id;
 const nluWatsonPass = config.nluWatson.pass;
 const nluWatsonId = config.nluWatson.id;
 
-let nlu = new watsonNLUV1({
-  username: nluWatsonId,
-  password: nluWatsonPass,
-  version_date: watsonNLUV1.VERSION_DATE_2017_02_27
-});
+
 let main = 'https://oauth.reddit.com';
 let url = 'https://www.cbinsights.com/research/startup-failure-reasons-top/?utm_content=66767994&utm_medium=social&utm_source=twitter'
 let resultsObj = createPostsObj(main);
-// let resPack = createResponsePack();
-// let watsonRes = createWatsonResponse();
+let watson = createWatson();
+
 console.log(resultsObj);
-// console.log(watsonRes);
+console.log(watson);
 
 //----------------------------------------------------------------------
 
@@ -41,56 +37,43 @@ app.get('/', (req, res) => {
 
 app.post('/posts', (req, res) => {
   let subreddit = req.body.subreddit;
-  let resPack = [];
 
   resultsObj.getPosts((posts) => {
-
     let postsObj = JSON.parse(posts);
-    console.log(postsObj.data.children);
-    let postsArray = postsObj.data.children;
-    async.map(postsArray,
-      (post, cb) => {
-        nlu.analyze(
-          {
-            url: url,
-            features: {
-              concepts: {},
-              keywords: {}
-            }
-          },
-          (error, response) => {
-            if(error) {
-              console.log(`error: ${error}`);
-            } else {
-              console.log(Object.keys(response));
-              cb(null, response);
-            }
-          });
-      },
-      (err, results) => {
-        if(err) {
-          console.log(err);
-        } else {
-          res.send(results);
+    postsArray = postsObj.data.children.map((postObj) => {
+      let pack = [];
+      let postData = {};
+      if (postObj.data.post_hint) {
+        if(postObj.data.post_hint === 'link') {
+          let url = postObj.data.url;
+          pack.push({ url: url });
         }
       }
-    );
-    // postsArray.forEach((post) => {
-    //   let postObj = {
-    //     post: post
-    //   }
-    //   watsonRes.
-    //   resPack.push(postObj);
-    // });
-    //
-    // resPack.postsData = posts;
+      if (postObj.data.selftext) {
+        let selfText = postObj.data.selftext;
+        pack.push({ selfText: selfText })
+      }
+      pack.push({ title: postObj.data.title });
+      postData.pack = pack;
 
-    //resPack.watsonData = response;
-    // res.send(resPack);
-
+      let extras = {}
+      extras.postId = postObj.data.id;
+      postData.extras = extras;
+      return postData;
+    });
+    res.send(postsArray);
   }, subreddit);
-
 });
+
+app.post('/watson', (req, res) => {
+  let content = req.body;
+  let id = req.body.id;
+
+  watson.getNLU(content, (resp) => {
+    console.log(resp);
+    res.send(resp);
+  });
+})
 
 app.get('/comments', (req, res) => {
   resultsObj.getComments((comments) => {
@@ -133,14 +116,11 @@ function createPostsObj(domain) {
               'Authorization': `Bearer ${token}`
             },
             form: {
-                    'client_id': id,
-                    'client_secret': secret
+              'client_id': id,
+              'client_secret': secret
             },
             url: url
           };
-          // console.log(user.data);
-          // console.log(token);
-          // console.log(url);
           request.get(options, (error, res) => {
             cb(res.body);
           });
@@ -162,9 +142,107 @@ function createPostsObj(domain) {
         });
       });
     }
-
-
   }
-
   return new PostsObj();
+}
+
+function createWatson() {
+  function WatsonObj() {
+
+    this.nlu = new watsonNLUV1({
+      username: nluWatsonId,
+      password: nluWatsonPass,
+      version_date: watsonNLUV1.VERSION_DATE_2017_02_27
+    });
+
+    this.getNLU = (data, cb) => {
+      let parameters = {};
+
+      if(data.type === 'url') {
+        parameters = {
+          'url': data.source,
+          'features': {
+            'entities': {
+              'emotion': true,
+              'sentiment': true,
+              'limit': 2
+            },
+            'keywords': {
+              'emotion': true,
+              'sentiment': true,
+              'limit': 2
+            }
+          }
+        }
+      }
+      if (data.type === 'title' || data.type === 'selfTitle') {
+        let apprStr = '';
+        let str = data.source;
+        let numWords = str.split(' ').length;
+        console.log(`numWords: ${numWords}`);
+
+        if (numWords <= 15) {
+          let count = 15 - numWords;
+          // console.log(`count: ${count}`);
+          let i = 0;
+          while (i < count) {
+            str += ' 000000';
+            // console.log(str);
+            // console.log(count);
+            i++;
+          }
+        }
+
+        parameters = {
+          'text': str,
+          'features': {
+            'entities': {
+              'emotion': true,
+              'sentiment': true,
+              'limit': 2
+            },
+            'keywords': {
+              'emotion': true,
+              'sentiment': true,
+              'limit': 2
+            }
+          }
+        }
+      }
+      // if (data.type === 'selfTitle') {
+      //   parameters = {
+      //     'text': data.source,
+      //     'features': {
+      //       'entities': {
+      //         'emotion': true,
+      //         'sentiment': true,
+      //         'limit': 2
+      //       },
+      //       'keywords': {
+      //         'emotion': true,
+      //         'sentiment': true,
+      //         'limit': 2
+      //       }
+      //     }
+      //   }
+      // }
+
+      // cb(parameters);
+      // if (data.type === 'selfTitle') {
+        this.nlu.analyze(
+          parameters,
+          (error, response) => {
+            if(error) {
+              console.log(`error: ${error}`);
+            } else {
+              cb(response);
+            }
+          });
+      // } else {
+      //   cb({ watson: 'ooohyesh' })
+      // }
+
+    }
+  }
+  return new WatsonObj();
 }
