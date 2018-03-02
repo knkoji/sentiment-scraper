@@ -4,10 +4,10 @@ const path = require('path');
 const request = require('request');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const async = require("async");
+const async = require('async');
 const ClientOAuth2 = require('client-oauth2');
 const loadConfig = require('./process_env.js');
-let watsonNLUV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
+const watsonNLUV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
 
 const app = express();
 const config = loadConfig();
@@ -72,8 +72,8 @@ app.post('/watson', (req, res) => {
 
   resObj.id = id;
   watson.getNLU(content, (resp) => {
-    console.log(resp);
-    res.send(resp);
+    resObj.resp = resp;
+    res.send(resObj);
   });
 })
 
@@ -97,8 +97,8 @@ function createPostsObj(domain) {
     this.comments = [];
     this.getPosts = (cb, sub) => {
 
-      let id = redditId || REDDIT_ID;
-      let secret = redditPass || REDDIT_PASSWORD;
+      let id = redditId || process_env.REDDIT_ID;
+      let secret = redditPass || process_env.REDDIT_PASSWORD;
       let tokenUrl = 'https://www.reddit.com/api/v1/access_token';
 
       const redditAuth = new ClientOAuth2({
@@ -152,8 +152,8 @@ function createWatson() {
   function WatsonObj() {
 
     this.nlu = new watsonNLUV1({
-      username: nluWatsonId,
-      password: nluWatsonPass,
+      username: nluWatsonId || process_env.NLPWATSON_ID,
+      password: nluWatsonPass || process_env.NLPWATSON_PASSWORD,
       version_date: watsonNLUV1.VERSION_DATE_2017_02_27
     });
 
@@ -166,8 +166,8 @@ function createWatson() {
           'features': {
             'entities': {
               'emotion': true,
-              'sentiment': true,
-              'limit': 2
+              'sentiment': true
+              // 'limit': 2
             },
             'keywords': {
               'emotion': true,
@@ -177,7 +177,7 @@ function createWatson() {
           }
         }
       }
-      if (data.type === 'title' || data.type === 'selfTitle') {
+      if (data.type === 'title' || data.type === 'selfText') {
         let apprStr = '';
         let str = data.source;
         let numWords = str.split(' ').length;
@@ -207,6 +207,7 @@ function createWatson() {
           }
         }
       }
+      console.log(parameters);
       this.nlu.analyze(
         parameters,
         (error, response) => {

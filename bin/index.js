@@ -17,13 +17,13 @@ function displayPostData(posts) {
 
   posts.forEach((post) => {
     let id = post.extras.postId;
-    let ul = document.createElement("ul");
+    let ul = document.createElement('ul');
     $(ul).addClass('post');
     $(ul).attr('id', id);
     $('#posts').append(ul);
 
     post.pack.forEach((source) => {
-      let li = document.createElement("li");
+      let li = document.createElement('li');
       let type = '';
       let str = '';
       // console.log(data);
@@ -38,7 +38,7 @@ function displayPostData(posts) {
         $(li).addClass('title');
       }
       if (source.selfText) {
-        type = 'selfTitle';
+        type = 'selfText';
         str += source.selfText;
         $(li).addClass('self-text');
       }
@@ -51,8 +51,8 @@ function displayPostData(posts) {
       data.id = id;
 
       $.ajax({
-        url: "/watson",
-        method: "POST",
+        url: '/watson',
+        method: 'POST',
         data: data,
         success: displaySentiment
       });
@@ -61,5 +61,14 @@ function displayPostData(posts) {
 }
 
 function displaySentiment(sentimentObj) {
-  console.log('watson:\n', sentimentObj);
+  let id = sentimentObj.id;
+  let analysis = sentimentObj.resp;
+  console.log('watson:\n', sentimentObj.resp);
+
+  let ul = document.createElement('ul');
+  let li = document.createElement('li');
+  $(li).append(JSON.stringify(analysis, null, 2));
+  $(ul).append(li);
+  $(`#${id}`).append(ul);
+
 }
