@@ -68,7 +68,9 @@ app.post('/posts', (req, res) => {
 app.post('/watson', (req, res) => {
   let content = req.body;
   let id = req.body.id;
+  let resObj = {};
 
+  resObj.id = id;
   watson.getNLU(content, (resp) => {
     console.log(resp);
     res.send(resp);
@@ -183,16 +185,12 @@ function createWatson() {
 
         if (numWords <= 15) {
           let count = 15 - numWords;
-          // console.log(`count: ${count}`);
           let i = 0;
           while (i < count) {
             str += ' 000000';
-            // console.log(str);
-            // console.log(count);
             i++;
           }
         }
-
         parameters = {
           'text': str,
           'features': {
@@ -209,39 +207,15 @@ function createWatson() {
           }
         }
       }
-      // if (data.type === 'selfTitle') {
-      //   parameters = {
-      //     'text': data.source,
-      //     'features': {
-      //       'entities': {
-      //         'emotion': true,
-      //         'sentiment': true,
-      //         'limit': 2
-      //       },
-      //       'keywords': {
-      //         'emotion': true,
-      //         'sentiment': true,
-      //         'limit': 2
-      //       }
-      //     }
-      //   }
-      // }
-
-      // cb(parameters);
-      // if (data.type === 'selfTitle') {
-        this.nlu.analyze(
-          parameters,
-          (error, response) => {
-            if(error) {
-              console.log(`error: ${error}`);
-            } else {
-              cb(response);
-            }
-          });
-      // } else {
-      //   cb({ watson: 'ooohyesh' })
-      // }
-
+      this.nlu.analyze(
+        parameters,
+        (error, response) => {
+          if(error) {
+            console.log(`error: ${error}`);
+          } else {
+            cb(response);
+          }
+        });
     }
   }
   return new WatsonObj();
