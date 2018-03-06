@@ -1,38 +1,32 @@
 const https = require('https');
+const express = require('express');
 const path = require('path');
-const request = require('request');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const async = require('async');
-const ClientOAuth2 = require('client-oauth2');
-const loadConfig = require('./process_env.js');
 const watsonNLUV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
 
-const config = loadConfig();
-const redditPass = config.reddit.pass;
-const redditId = config.reddit.id;
-const nluWatsonPass = config.nluWatson.pass;
-const nluWatsonId = config.nluWatson.id;
+let app = require('./simple_server/server.js');
+let reddPostsObj = require('./apis/reddit.js');
+let watson = require('./apis/watson.js');
 
-let resultsObj = createPostsObj();
-let watson = createWatson();
-
-console.log(resultsObj);
+console.log(reddPostsObj);
 console.log(watson);
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../bin')));
+app.use(express.static(path.join(__dirname, './front')));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../bin', 'index.html'));
+  res.sendFile(path.join(__dirname, './front', 'index.html'));
 });
 
 app.post('/posts', (req, res) => {
   let subreddit = req.body.subreddit;
-
-  resultsObj.getPosts((posts) => {
+  console.log(subreddit);
+  reddPostsObj.getPosts((posts) => {
     let postsObj = JSON.parse(posts);
-    postsArray = postsObj.data.children.map((postObj) => {
+    let postsArray = postsObj.data.children.map((postObj) => {
       let pack = [];
       let postData = {};
       if (postObj.data.post_hint) {
@@ -70,7 +64,7 @@ app.post('/watson', (req, res) => {
 })
 
 app.get('/comments', (req, res) => {
-  resultsObj.getComments((comments) => {
+  reddPostsObj.getComments((comments) => {
     res.send(comments);
   });
 });
