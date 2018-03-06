@@ -31,13 +31,11 @@ function displayPostData(posts) {
         type = 'url';
         str += source.url;
         $(li).addClass('url');
-      }
-      if (source.title) {
+      } else if (source.title) {
         type = 'title';
         str += source.title;
         $(li).addClass('title');
-      }
-      if (source.selfText) {
+      } else if (source.selfText) {
         type = 'selfText';
         str += source.selfText;
         $(li).addClass('self-text');

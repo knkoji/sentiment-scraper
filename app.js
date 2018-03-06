@@ -28,23 +28,22 @@ app.post('/posts', (req, res) => {
     let postsObj = JSON.parse(posts);
     let postsArray = postsObj.data.children.map((postObj) => {
       let pack = [];
-      let postData = {};
-      if (postObj.data.post_hint) {
-        if(postObj.data.post_hint === 'link') {
-          let url = postObj.data.url;
-          pack.push({ url: url });
-        }
+      if (postObj && postObj.data && postObj.data.post_hint === 'link') {
+        let url = postObj.data.url;
+        pack.push({ url: url });
       }
       if (postObj.data.selftext) {
         let selfText = postObj.data.selftext;
         pack.push({ selfText: selfText })
       }
       pack.push({ title: postObj.data.title });
-      postData.pack = pack;
 
-      let extras = {}
-      extras.postId = postObj.data.id;
-      postData.extras = extras;
+      let postData = {
+        pack: pack
+      }
+      postData.extras = {
+        postId: postObj.data.id
+      }
       return postData;
     });
     res.send(postsArray);
@@ -54,9 +53,9 @@ app.post('/posts', (req, res) => {
 app.post('/watson', (req, res) => {
   let content = req.body;
   let id = req.body.id;
-  let resObj = {};
-
-  resObj.id = id;
+  let resObj = {
+    id: id
+  };
   watson.getNLU(content, (resp) => {
     resObj.resp = resp;
     res.send(resObj);

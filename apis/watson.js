@@ -4,7 +4,6 @@ const config = loadConfig();
 const nluWatsonPass = config.nluWatson.pass;
 const nluWatsonId = config.nluWatson.id;
 
-
 let WatsonObj = function() {
   this.nlu = new watsonNLUV1({
     username: nluWatsonId || process_env.NLPWATSON_ID,
@@ -14,6 +13,7 @@ let WatsonObj = function() {
 
   this.getNLU = (data, cb) => {
     let parameters = {};
+
 
     if(data.type === 'url') {
       parameters = {
