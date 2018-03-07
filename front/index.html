@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js" ></script>
+    <title></title>
+  </head>
+  <body>
+    <h1>Posts + Comments</h1>
+    <div class="posts">
+      <label for="subreddit-search">Choose a Subreddit: </label>
+      <input id="subreddit-search" name="subreddit" minlength="2" maxlength="30" type="text">
+      <span class="validity"></span>
+    </div>
+    <div class="button">
+      <button id="getPosts">Submit</button>
+    </div>
+
+    <ul id="posts"></ul>
+
+    <script type="text/javascript" src="./index.js"></script>
+  </body>
+</html>
