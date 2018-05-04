@@ -23,30 +23,46 @@ app.get('/', (req, res) => {
 
 app.post('/posts', (req, res) => {
   let subreddit = req.body.subreddit;
-  console.log(subreddit);
+
   reddPostsObj.getPosts((posts) => {
     let postsObj = JSON.parse(posts);
-    let postsArray = postsObj.data.children.map((postObj) => {
-      let pack = [];
-      if (postObj && postObj.data && postObj.data.post_hint === 'link') {
-        let url = postObj.data.url;
-        pack.push({ url: url });
-      }
-      if (postObj.data.selftext) {
-        let selfText = postObj.data.selftext;
-        pack.push({ selfText: selfText })
-      }
-      pack.push({ title: postObj.data.title });
 
-      let postData = {
-        pack: pack
-      }
-      postData.extras = {
-        postId: postObj.data.id
-      }
-      return postData;
+    let postsArray = postsObj.data.children.map((postObj) => {
+      return {
+              name: postObj.data.subreddit_name_prefixed,
+              full_name: postObj.data.permalink,
+              title: postObj.data.title,
+              self_text: postObj.data.self_text,
+              url: postObj.data.url
+              // link: true ? :
+            };
     });
-    res.send(postsArray);
+
+    let watsonContentArr = postsArray.map((postData) => {
+      // if (isUrlValid(postData.url)) {
+      return {
+        url: postData.url,
+        text: postData.text
+      }
+    });
+
+    async.map(
+      watsonContentArr,
+      watson.getNLU,
+      (err, results) => {
+        if (err) {
+          console.error(err);
+        } else {
+          res.send(
+            {
+              posts: postsArray,
+              watson_content: watsonContentArr,
+              watson_results: results
+            });
+        }
+      }
+    );
+
   }, subreddit);
 });
 
@@ -60,10 +76,13 @@ app.post('/watson', (req, res) => {
     resObj.resp = resp;
     res.send(resObj);
   });
-})
-
-app.get('/comments', (req, res) => {
-  reddPostsObj.getComments((comments) => {
-    res.send(comments);
-  });
 });
+
+// app.get('/comments', (req, res) => {
+//   reddPostsObj.getComments((comments) => {
+//     res.send(comments);
+//   });
+// });
+function isUrlValid(url) {
+
+}

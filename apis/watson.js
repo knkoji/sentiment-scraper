@@ -15,9 +15,9 @@ let WatsonObj = function() {
     let parameters = {};
 
 
-    if(data.type === 'url') {
+    if(data.url) {
       parameters = {
-        'url': data.source,
+        'url': data.url,
         'features': {
           'entities': {
             'emotion': true,
@@ -31,23 +31,9 @@ let WatsonObj = function() {
           }
         }
       }
-    }
-    if (data.type === 'title' || data.type === 'selfText') {
-      let apprStr = '';
-      let str = data.source;
-      let numWords = str.split(' ').length;
-      console.log(`numWords: ${numWords}`);
-
-      if (numWords <= 15) {
-        let count = 15 - numWords;
-        let i = 0;
-        while (i < count) {
-          str += ' 000000';
-          i++;
-        }
-      }
+    } else {
       parameters = {
-        'text': str,
+        'text': data.text,
         'features': {
           'entities': {
             'emotion': true,
@@ -62,14 +48,46 @@ let WatsonObj = function() {
         }
       }
     }
-    console.log(parameters);
+
+    // if (data.type === 'title' || data.type === 'selfText') {
+    //   let apprStr = '';
+    //   let str = data.source;
+    //   let numWords = str.split(' ').length;
+    //   console.log(`numWords: ${numWords}`);
+    //
+    //   if (numWords <= 15) {
+    //     let count = 15 - numWords;
+    //     let i = 0;
+    //     while (i < count) {
+    //       str += ' 000000';
+    //       i++;
+    //     }
+    //   }
+    //   parameters = {
+    //     'text': str,
+    //     'features': {
+    //       'entities': {
+    //         'emotion': true,
+    //         'sentiment': true,
+    //         'limit': 2
+    //       },
+    //       'keywords': {
+    //         'emotion': true,
+    //         'sentiment': true,
+    //         'limit': 2
+    //       }
+    //     }
+    //   }
+    // }
+    // console.log(parameters);
+
     this.nlu.analyze(
       parameters,
       (error, response) => {
         if(error) {
           console.log(`error: ${error}`);
         } else {
-          cb(response);
+          cb(error, response);
         }
       });
   }
