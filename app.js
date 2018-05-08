@@ -26,63 +26,24 @@ app.post('/posts', (req, res) => {
 
   reddPostsObj.getPosts((posts) => {
     let postsObj = JSON.parse(posts);
-
     let postsArray = postsObj.data.children.map((postObj) => {
       return {
+              id: postObj.data.id,
               name: postObj.data.subreddit_name_prefixed,
               full_name: postObj.data.permalink,
               title: postObj.data.title,
               self_text: postObj.data.self_text,
               url: postObj.data.url
-              // link: true ? :
             };
     });
 
-    let watsonContentArr = postsArray.map((postData) => {
-      // if (isUrlValid(postData.url)) {
-      return {
-        url: postData.url,
-        text: postData.text
-      }
-    });
 
-    async.map(
-      watsonContentArr,
-      watson.getNLU,
-      (err, results) => {
-        if (err) {
-          console.error(err);
-        } else {
-          res.send(
-            {
-              posts: postsArray,
-              watson_content: watsonContentArr,
-              watson_results: results
-            });
-        }
-      }
-    );
-
+    res.send(postsArray);
   }, subreddit);
 });
 
 app.post('/watson', (req, res) => {
-  let content = req.body;
-  let id = req.body.id;
-  let resObj = {
-    id: id
-  };
-  watson.getNLU(content, (resp) => {
-    resObj.resp = resp;
-    res.send(resObj);
-  });
+  let posts = JSON.parse(req.body.key);
+
+  res.send(posts);
 });
-
-// app.get('/comments', (req, res) => {
-//   reddPostsObj.getComments((comments) => {
-//     res.send(comments);
-//   });
-// });
-function isUrlValid(url) {
-
-}
