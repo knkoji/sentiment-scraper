@@ -26,6 +26,7 @@ app.post('/posts', (req, res) => {
 
   reddPostsObj.getPosts((posts) => {
     let postsObj = JSON.parse(posts);
+
     let postsArray = postsObj.data.children.map((postObj) => {
       return {
               id: postObj.data.id,
@@ -38,12 +39,28 @@ app.post('/posts', (req, res) => {
     });
 
 
-    res.send(postsArray);
+    res.send({ posts: postsObj, postsData: postsArray });
   }, subreddit);
 });
 
 app.post('/watson', (req, res) => {
   let posts = JSON.parse(req.body.key);
-
-  res.send(posts);
+  let watsonContentArr = posts.map((post) => {
+    return {
+      url: post.url,
+      text: post.title + post.self_text
+    }
+  });
+  console.log(watsonContentArr);
+  async.map(
+    watsonContentArr,
+    watson.getNLU,
+    (error, results) => {
+      if (error) {
+        res.send({ errString: "What in the world wide web is this?!" });
+      } else {
+        res.send(results);
+      }
+    }
+  );
 });

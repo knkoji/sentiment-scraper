@@ -15,9 +15,11 @@ $("#getPosts").click(() => {
   });
 });
 
-function setPosts(postsArr) {
+function setPosts(postsResp) {
 
-  let data = postsArr;
+  let data = postsResp.postsData;
+  let posts = postsResp.posts;
+  
   data = JSON.stringify(data);
 
   $.ajax({

@@ -14,7 +14,6 @@ let WatsonObj = function() {
   this.getNLU = (data, cb) => {
     let parameters = {};
 
-
     if(data.url) {
       parameters = {
         'url': data.url,
@@ -32,8 +31,13 @@ let WatsonObj = function() {
         }
       }
     } else {
+      let text = data.text;
+      while ( text.length() < 30 ) {
+        text += '0';
+      }
+
       parameters = {
-        'text': data.text,
+        'text': text,
         'features': {
           'entities': {
             'emotion': true,
@@ -48,38 +52,6 @@ let WatsonObj = function() {
         }
       }
     }
-
-    // if (data.type === 'title' || data.type === 'selfText') {
-    //   let apprStr = '';
-    //   let str = data.source;
-    //   let numWords = str.split(' ').length;
-    //   console.log(`numWords: ${numWords}`);
-    //
-    //   if (numWords <= 15) {
-    //     let count = 15 - numWords;
-    //     let i = 0;
-    //     while (i < count) {
-    //       str += ' 000000';
-    //       i++;
-    //     }
-    //   }
-    //   parameters = {
-    //     'text': str,
-    //     'features': {
-    //       'entities': {
-    //         'emotion': true,
-    //         'sentiment': true,
-    //         'limit': 2
-    //       },
-    //       'keywords': {
-    //         'emotion': true,
-    //         'sentiment': true,
-    //         'limit': 2
-    //       }
-    //     }
-    //   }
-    // }
-    // console.log(parameters);
 
     this.nlu.analyze(
       parameters,
