@@ -39,7 +39,6 @@ let PostsObj = function() {
           url: url
         };
         request.get(options, (error, res) => {
-          // cb(res.body);
           if (error) {
             console.log(error);
           } else {

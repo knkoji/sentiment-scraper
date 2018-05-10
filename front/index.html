@@ -2,22 +2,31 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="./index.css"><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.min.js"></script>
+    <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js" ></script>
     <title></title>
   </head>
+
   <body>
-    <h1>Posts + Comments</h1>
-    <div class="posts">
+    <h1></h1>
+
+    <div>
       <label for="subreddit-search">Choose a Subreddit: </label>
       <input id="subreddit-search" name="subreddit" minlength="2" maxlength="30" type="text">
       <span class="validity"></span>
     </div>
+
     <div class="button">
       <button id="getPosts">Submit</button>
     </div>
 
-    <ul id="posts"></ul>
+    <div>
+      <ul id="posts"></ul>
+    </div>
 
     <script type="text/javascript" src="./index.js"></script>
   </body>

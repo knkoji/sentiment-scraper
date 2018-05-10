@@ -4,69 +4,34 @@ $("#getPosts").click(() => {
   let inputText = $('#subreddit-search').val();
   data.subreddit = inputText;
 
+  //subreddit input check
   console.log(`subreddit: ${inputText}`);
+
   $.ajax({
     url: "/posts",
     method: "POST",
     data: data,
-    success: displayPostData
+    success: setPosts
   });
 });
 
-function displayPostData(posts) {
+function setPosts(postsResp) {
 
-  posts.forEach((post) => {
-    let id = post.extras.postId;
-    let ul = document.createElement('ul');
-    $(ul).addClass('post');
-    $(ul).attr('id', id);
-    $('#posts').append(ul);
+  let data = postsResp.postsData;
+  let posts = postsResp.posts;
+  
+  data = JSON.stringify(data);
 
-    post.pack.forEach((source) => {
-      let li = document.createElement('li');
-      let type = '';
-      let str = '';
-      // console.log(data);
-      if (source.url) {
-        type = 'url';
-        str += source.url;
-        $(li).addClass('url');
-      } else if (source.title) {
-        type = 'title';
-        str += source.title;
-        $(li).addClass('title');
-      } else if (source.selfText) {
-        type = 'selfText';
-        str += source.selfText;
-        $(li).addClass('self-text');
-      }
-
-      $(li).append(str);
-      $(ul).append(li);
-      let data = {}
-      data.type = type;
-      data.source = str;
-      data.id = id;
-
-      $.ajax({
-        url: '/watson',
-        method: 'POST',
-        data: data,
-        success: displaySentiment
-      });
-    });
+  $.ajax({
+    url: '/watson',
+    method: 'POST',
+    data: {
+      key: data
+    },
+    success: sentimentData
   });
 }
 
-function displaySentiment(sentimentObj) {
-  let id = sentimentObj.id;
-  let analysis = sentimentObj.resp;
-  console.log('watson:\n', sentimentObj.resp);
-
-  let ul = document.createElement('ul');
-  let li = document.createElement('li');
-  $(li).append(JSON.stringify(analysis, null, 2));
-  $(ul).append(li);
-  $(`#${id}`).append(ul);
-
+function sentimentData(watsonResp) {
+  console.log(watsonResp);
 }

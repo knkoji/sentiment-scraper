@@ -23,47 +23,44 @@ app.get('/', (req, res) => {
 
 app.post('/posts', (req, res) => {
   let subreddit = req.body.subreddit;
-  console.log(subreddit);
+
   reddPostsObj.getPosts((posts) => {
     let postsObj = JSON.parse(posts);
-    let postsArray = postsObj.data.children.map((postObj) => {
-      let pack = [];
-      if (postObj && postObj.data && postObj.data.post_hint === 'link') {
-        let url = postObj.data.url;
-        pack.push({ url: url });
-      }
-      if (postObj.data.selftext) {
-        let selfText = postObj.data.selftext;
-        pack.push({ selfText: selfText })
-      }
-      pack.push({ title: postObj.data.title });
 
-      let postData = {
-        pack: pack
-      }
-      postData.extras = {
-        postId: postObj.data.id
-      }
-      return postData;
+    let postsArray = postsObj.data.children.map((postObj) => {
+      return {
+              id: postObj.data.id,
+              name: postObj.data.subreddit_name_prefixed,
+              full_name: postObj.data.permalink,
+              title: postObj.data.title,
+              self_text: postObj.data.self_text,
+              url: postObj.data.url
+            };
     });
-    res.send(postsArray);
+
+
+    res.send({ posts: postsObj, postsData: postsArray });
   }, subreddit);
 });
 
 app.post('/watson', (req, res) => {
-  let content = req.body;
-  let id = req.body.id;
-  let resObj = {
-    id: id
-  };
-  watson.getNLU(content, (resp) => {
-    resObj.resp = resp;
-    res.send(resObj);
+  let posts = JSON.parse(req.body.key);
+  let watsonContentArr = posts.map((post) => {
+    return {
+      url: post.url,
+      text: post.title + post.self_text
+    }
   });
-})
-
-app.get('/comments', (req, res) => {
-  reddPostsObj.getComments((comments) => {
-    res.send(comments);
-  });
+  console.log(watsonContentArr);
+  async.map(
+    watsonContentArr,
+    watson.getNLU,
+    (error, results) => {
+      if (error) {
+        res.send({ errString: "What in the world wide web is this?!" });
+      } else {
+        res.send(results);
+      }
+    }
+  );
 });
